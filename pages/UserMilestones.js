@@ -76,9 +76,11 @@ console.log("idmilestones:",milestoneData);
      <section class="text-gray-600 font-inter  font-bold overflow-hidden">
         <h1 class="font-bold text-2xl items-center text-center text-black justify-center py-12 mt-3"> Milestones Status</h1>
        <div class="container px-5 mx-auto">
-       {loading ? ( // Render a loading message when data is loading
+       {!isConnected ? (
+          <div className="text-center text-gray-500">No milestones found (Not connected)</div>
+        ) :loading ? ( // Render a loading message when data is loading
           <div class="flex justify-center items-center">Loading milestones data...</div>
-        ): milestoneData.length === 0 ? (
+        ): milestoneData.length === 0  ? (
           <div className="text-center text-gray-500">No milestones found</div>
         ) : (
           <div class="-my-8 divide-y-2 divide-gray-100">
