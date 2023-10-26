@@ -138,10 +138,10 @@ const rejectMilestone = async (index) => {
                <h2 class="text-2xl font-medium text-gray-900 title-font mb-2">{milestone?milestone[1]:0} {/* Display the description from the data */} ( {milestone?(milestone[2].toString()):0} USD)</h2>
                 <div class="flex">
                   <div class={`mt-35 w-22 rounded-md ${ milestone && milestone[6] ? 'bg-teal-100' : 'bg-red-100'} px-2 py-1 text-sm font-medium text-teal-700 mr-2`}>
-                    {milestone && milestone[6]? 'Completed' : 'In Progress'}
+                  {milestone && milestone[6]? 'Funded' : 'Not Funded'}
                   </div>
                  <div class={`mt-35 w-22 rounded-md ${ milestone && milestone[7] ? 'bg-teal-100' : 'bg-red-100'} px-2 py-1 text-sm font-medium text-teal-700`}>
-                     {milestone && milestone[7]? 'Funded' : 'Not Funded'}
+                 {milestone && milestone[7]? 'Approved' : 'In Progress'}
                  </div>
                  </div>
   

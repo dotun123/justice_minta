@@ -4,102 +4,85 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import DashBoard from './DashBoard';
-import { useContractRead,useAccount } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { contractABI, contractAddress } from "../components/abi/utils/constant";
-import {ethers} from "ethers";
+import { ethers } from 'ethers';
 
+const UserMilestones = () => {
 
-const MyProjects = () => {
-
-
-  const [numberOfMilestone, setNumberOfMilestone] = useState([]);
-  const [milestoneData1, setMilestoneData] = useState([])
   const { address,  isConnected } = useAccount()
-  const [numberError, setNumberError] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-
-
-const rpcUrl = "https://polygon-mumbai.g.alchemy.com/v2/vn61eXIkpvUX5dPgfdirJyhHzm93wQNW";
-const numberOfMilestonesFunctionName = "getNumberOfMilestones";
-const milestonesFunctionName = "milestones";
-//   // Create a provider using the JsonRpcProvider class
-  const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
-//   // Create a contract instance
-  const contract = new ethers.Contract(contractAddress, contractABI, provider);
-
+  const rpcUrl = "https://polygon-mumbai.g.alchemy.com/v2/vn61eXIkpvUX5dPgfdirJyhHzm93wQNW";
  
+  //   // Create a provider using the JsonRpcProvider class
+    const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+  //   // Create a contract instance
+    const contract = new ethers.Contract(contractAddress, contractABI, provider);
 
+  // State to store the user's milestone IDs and milestones
+  const [milestoneIds, setMilestoneIds] = useState([]);
+  const [milestoneData, setMilestoneData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const formatUnixTimestamp = (timestamp) => {
-        const date = new Date(Number(timestamp) * 1000);
-        return date.toLocaleDateString();
-      };
-  
-  async function getNumberOfMilestones() {
-    try {
-      const numberOfMilestones = await contract.functions[numberOfMilestonesFunctionName]();
-      console.log(numberOfMilestones.toString())
-      return numberOfMilestones.toString();
-    } catch (error) {
-      setNumberError(true);
-      console.error("Error fetching the number of milestones:", error);
-      return 0;
-    }
-  }
+    const date = new Date(Number(timestamp) * 1000);
+    return date.toLocaleDateString();
+  };
 
-  async function getMilestoneData(index) {
-    try {
-      const milestoneData = await contract.functions[milestonesFunctionName](index);
-      console.log(milestoneData)
-      return milestoneData;
-      
-    } catch (error) {
-      console.error("Error fetching milestone data at index", index, ":", error);
-      return null;
-    }
-  }
-
-
-
-
-
-  async function updateMilestonesData() {
-    try {
-      const numberOfMilestones = await getNumberOfMilestones();
-      const milestones = [];
-
-      for (let i = 0; i < numberOfMilestones; i++) {
-        const milestoneData = await getMilestoneData(i);
-        milestones.push(milestoneData);
-      }
-
-      setMilestoneData(milestones.reverse());
-      setLoading(false);
-    } catch (error) {
-      console.error("Error updating milestones data:", error);
-    }
-  }
 
   useEffect(() => {
-    updateMilestonesData();
-    // Call the update function periodically or set up an event listener to update when the number of milestones changes
-    const intervalId = setInterval(updateMilestonesData, 60000); // Update every 60 seconds
+    if (isConnected) {
+      // Set loading to true before fetching data
+      setLoading(true);
+  
+      // Function to get user's milestone IDs
+      async function getUserMilestoneIds() {
+        try {
+          const userMilestoneIds = await contract.getUserMilestoneIds(address);
+          const adjustedIds = userMilestoneIds.map(id => id.sub(1));
+          setMilestoneIds(adjustedIds);
+      
+          // Call getMilestoneDataForIds after setting milestoneIds
+          getMilestoneDataForIds(adjustedIds);
+        } catch (error) {
+          console.error("Error getting user milestone IDs: ", error);
+        }
+      }
 
-    // Clean up the interval when the component unmounts
-    return () => clearInterval(intervalId);
-  }, []);
+      // Function to get milestone data for each ID
+      async function getMilestoneDataForIds(ids) {
+        try {
+          const milestoneData = await Promise.all(ids.map(async (id) => {
+            const milestone = await contract.milestones(id);
+            return milestone;
+          }));
+          setMilestoneData(milestoneData.reverse());
+          // Set loading to false after data has been fetched
+          setLoading(false);
+        } catch (error) {
+          console.error("Error getting milestone data: ", error);
+         
+        }
+      }
+  
+      // Call the function to get milestone IDs
+      getUserMilestoneIds();
+    }
+  }, [isConnected, address]);
+    
+console.log("id:",milestoneIds);
+console.log("idmilestones:",milestoneData);
 
- 
   return (
-    <DashBoard class="h-screen">
-      <section class="text-gray-600 font-inter  font-bold overflow-hidden">
+    <DashBoard>
+     <section class="text-gray-600 font-inter  font-bold overflow-hidden">
         <h1 class="font-bold text-2xl items-center text-center text-black justify-center py-12 mt-3"> Milestones Status</h1>
        <div class="container px-5 mx-auto">
        {loading ? ( // Render a loading message when data is loading
           <div class="flex justify-center items-center">Loading milestones data...</div>
+        ): milestoneData.length === 0 ? (
+          <div className="text-center text-gray-500">No milestones found</div>
         ) : (
           <div class="-my-8 divide-y-2 divide-gray-100">
-          {milestoneData1.slice().map((milestone, index) => (
+          {milestoneData.slice().map((milestone, index) => (
              <div class="py-8 flex flex-wrap md:flex-nowrap" key={index}>
             <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
                 <span class="font-semibold title-font text-gray-950">Milestone {index + 1}</span>
@@ -132,9 +115,14 @@ const milestonesFunctionName = "milestones";
           ))}
         </div>)}
        </div>
-    </section>
-  </DashBoard>
+    </section> 
+
+   
+     </DashBoard>
+
+
+    
   );
 };
 
-export default dynamic(() => Promise.resolve(MyProjects), { ssr: false });
+export default dynamic(() => Promise.resolve(UserMilestones), { ssr: false });

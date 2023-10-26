@@ -67,9 +67,9 @@ const Menus = [
         },
         {
           id: 52,
-          label: 'Update Milestones',
+          label: 'User Milestones',
           icon: <MdNewLabel />,
-          link: '/AddMilestones',
+          link: '/UserMilestones',
         },
       ],
       icon: <MdStorage />,
