@@ -6,18 +6,37 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Homepage from '../components/Homepage';
+import {
+  useAccount,
+  useConnect,
+  useDisconnect,
+  useEnsAvatar,
+  useEnsName,
+} from 'wagmi';
+import { contractABI, contractAddress,editor } from "../components/abi/utils/constant";
+import { useContractRead } from 'wagmi'
 
 const Sidebar = ({ children }) => {
   const [open, setOpen] = useState(true);
   const [submenuOpen, setSubmenuOpen] = useState({});
   const router = useRouter();
-
+  const { address, connector, isConnected } = useAccount()
   const handleSubmenuToggle = (menuId) => {
     setSubmenuOpen((prevState) => ({
       ...prevState,
       [menuId]: !prevState[menuId],
     }));
   };
+  const { data:hasRoleData } =  useContractRead({
+    address: contractAddress,
+     abi: contractABI,
+     functionName: 'hasRole',
+   args:[editor,address],
+   watch: true,
+   })
+ 
+
+  
 
   return (
     <>
@@ -93,38 +112,45 @@ const Sidebar = ({ children }) => {
           </div>
 
           <ul>
-            {Menus.map((menu) => (
-              <li
-                key={menu.id}
-                className={`text-white text-m flex flex-col gap-y-2 cursor-pointer p-2 ${
-                  submenuOpen[menu.id] ? '' : 'hover:bg-slate-300 hover:text-teal-900 hover:rounded-lg'
-                } mt-2`}
-              >
-                <div className="flex items-center gap-x-2">
-                  <span className="text-3xl">{menu.icon}</span>
-                  <span className={`text-base ${!open && 'hidden'}`}>{menu.label}</span>
-                  {menu.submenus && open && (
-                    <BsChevronDown
-                      className={`${submenuOpen[menu.id] ? 'rotate-180' : ''} ${open && 'display'}`}
-                      onClick={() => handleSubmenuToggle(menu.id)}
-                    />
-                  )}
-                </div>
+        {Menus.map((menu) => {
+          if (menu.label === 'Admin' && hasRoleData !== true) {
+            // Skip rendering the "Admin" menu if hasRoleData is not true
+            return null;
+          }
 
-                {menu.submenus && submenuOpen[menu.id] && open && (
-                  <ul className="text-white text-sm ml-4">
-                    {menu.submenus.map((submenu) => (
-                      <li key={submenu.id} className="">
-                        <div className="flex p-2 items-center">
-                          <a onClick={() => router.push(submenu.link)}>{submenu.label}</a>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+          return (
+            <li
+              key={menu.id}
+              className={`text-white text-m flex flex-col gap-y-2 cursor-pointer p-2 ${
+                submenuOpen[menu.id] ? '' : 'hover:bg-slate-300 hover:text-teal-900 hover:rounded-lg'
+              } mt-2`}
+            >
+              <div className="flex items-center gap-x-2">
+                <span className="text-3xl">{menu.icon}</span>
+                <span className={`text-base ${!open && 'hidden'}`}>{menu.label}</span>
+                {menu.submenus && open && (
+                  <BsChevronDown
+                    className={`${submenuOpen[menu.id] ? 'rotate-180' : ''} ${open && 'display'}`}
+                    onClick={() => handleSubmenuToggle(menu.id)}
+                  />
                 )}
-              </li>
-            ))}
-          </ul>
+              </div>
+
+              {menu.submenus && submenuOpen[menu.id] && open && (
+                <ul className="text-white text-sm ml-4">
+                  {menu.submenus.map((submenu) => (
+                    <li key={submenu.id} className="">
+                      <div className="flex p-2 items-center">
+                        <a onClick={() => router.push(submenu.link)}>{submenu.label}</a>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          );
+        })}
+      </ul>
         </div>
         <div className="flex-grow p-5">{children}</div>
         <div class="h-screen"></div>

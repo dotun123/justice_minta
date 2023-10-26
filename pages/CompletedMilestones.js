@@ -12,64 +12,12 @@ import {ethers} from "ethers";
 const MyProjects = () => {
 
 
-  // const [numberOfMilestone, setNumberOfMilestone] = useState([]);
+  const [numberOfMilestone, setNumberOfMilestone] = useState([]);
   const [milestoneData1, setMilestoneData] = useState([])
   const { address,  isConnected } = useAccount()
   const [numberError, setNumberError] = useState(false);
   const [loading, setLoading] = useState(true);
-//   const { data: NumberOfMilestone, error: numberError } = useContractRead({
-//     address: contractAddress,
-//     abi: contractABI,
-//     functionName: "getNumberOfMilestones",
-//     watch: true,
-//     cacheTime: 2000,
-//   });
- 
-//   const formatUnixTimestamp = (timestamp) => {
-//     const date = new Date(Number(timestamp) * 1000);
-//     return date.toLocaleDateString();
-//   };
 
-
- 
- 
-
-//   const numberOfMilestones = Number(NumberOfMilestone); // Convert the result to a number
-//   const milestoneIndices = Array.from({ length: numberOfMilestones }, (_, index) => index);
- 
-// const mile= milestoneIndices
-
-// const milestonesToFetch =mile; // Milestone indices to fetch
-// const milestoneDataPromises = milestonesToFetch.map((index) => {
-//   return useContractRead({
-//     address: contractAddress,
-//     abi: contractABI,
-//     functionName: "milestones",
-//     args: [index],
-//     watch: true,
-//     cacheTime: 2000,
-//   });
-// });
-
-
-
-
-
-
-// useEffect(() => {
-//   Promise.all(milestoneDataPromises)
-    
-//     .then((results) => {
-//       // 'results' is an array of the data for each milestone
-//       const dataForMilestones = results.map((result) => result.data);
-//       setMilestoneData(dataForMilestones); // Store the data in state
-//     })
-//     .catch((error) => {
-//       console.error("Error fetching milestone data:", error);
-//     });
-// }, [isConnected]);
-
-// console.log("data3:",milestoneData)
 
 
 const rpcUrl = "https://polygon-mumbai.g.alchemy.com/v2/vn61eXIkpvUX5dPgfdirJyhHzm93wQNW";
@@ -110,7 +58,11 @@ const milestonesFunctionName = "milestones";
       return null;
     }
   }
- 
+
+
+
+
+
   async function updateMilestonesData() {
     try {
       const numberOfMilestones = await getNumberOfMilestones();

@@ -11,6 +11,7 @@ import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 
 
+
 const { chains, publicClient,  } = configureChains(
   [mainnet, polygon, optimism, arbitrum,sepolia,polygonMumbai],
   [
@@ -33,6 +34,7 @@ const wagmiConfig = createConfig({
 
 function MyApp({ Component, pageProps }) {
  return (
+
   <WagmiConfig  config={wagmiConfig}>
     <RainbowKitProvider chains={chains}
     
@@ -54,7 +56,9 @@ function MyApp({ Component, pageProps }) {
     </ChakraProvider>
     </RainbowKitProvider>
   </WagmiConfig>
+  
 );
+
 };
 
 export default dynamic (() => Promise.resolve(MyApp), {ssr: false})

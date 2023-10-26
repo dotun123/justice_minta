@@ -44,11 +44,11 @@ const Menus = [
     },
     {
       id: 4,
-      label: 'Funding',
+      label: 'Admin',
       submenus: [
         {
           id: 41,
-          label: 'Request For Funding',
+          label: 'Admin section',
           icon: <MdCancelScheduleSend />,
           link: '/RequestFunding',
         },
