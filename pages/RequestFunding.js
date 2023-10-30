@@ -4,8 +4,8 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import DashBoard from './DashBoard';
-import { useContractRead,useAccount } from 'wagmi';
-import { contractABI, contractAddress,editor } from "../components/abi/utils/constant";
+import { useContractRead,useAccount,useContractWrite, usePrepareContractWrite,useWaitForTransaction } from 'wagmi';
+import { contractABI,  contractAddress,editor,editor2 } from "../components/abi/utils/constant";
 import {ethers} from "ethers";
 
 
@@ -17,7 +17,7 @@ const MyProjects = () => {
   const { address,  isConnected } = useAccount()
   const [numberError, setNumberError] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const [selectedMilestoneIndex, setSelectedMilestoneIndex] = useState(-1);
 
 
 const rpcUrl = "https://polygon-mumbai.g.alchemy.com/v2/vn61eXIkpvUX5dPgfdirJyhHzm93wQNW";
@@ -25,8 +25,9 @@ const numberOfMilestonesFunctionName = "getNumberOfMilestones";
 const milestonesFunctionName = "milestones";
 //   // Create a provider using the JsonRpcProvider class
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+  
 //   // Create a contract instance
-  const contract = new ethers.Contract(contractAddress, contractABI, provider);
+  const contract1 = new ethers.Contract(contractAddress, contractABI, provider);
 
  
 
@@ -37,7 +38,7 @@ const milestonesFunctionName = "milestones";
   
   async function getNumberOfMilestones() {
     try {
-      const numberOfMilestones = await contract.functions[numberOfMilestonesFunctionName]();
+      const numberOfMilestones = await contract1.functions[numberOfMilestonesFunctionName]();
       console.log(numberOfMilestones.toString())
       return numberOfMilestones.toString();
     } catch (error) {
@@ -49,7 +50,7 @@ const milestonesFunctionName = "milestones";
 
   async function getMilestoneData(index) {
     try {
-      const milestoneData = await contract.functions[milestonesFunctionName](index);
+      const milestoneData = await contract1.functions[milestonesFunctionName](index);
       console.log(milestoneData)
       return milestoneData;
       
@@ -61,30 +62,11 @@ const milestonesFunctionName = "milestones";
 
 
    
- // Define the functions to approve and reject milestones
- const approveMilestone = async (index) => {
-  try {
-    const tx = await contract.functions.approveMilestone(index);
-    await tx.wait();
-    console.log("approve:",tx);
-    // You can perform additional actions after approval if needed
-  } catch (error) {
-    console.error(`Error approving milestone at index ${index}:`, error);
-  }
-};
-
-const rejectMilestone = async (index) => {
-  try {
-    const tx = await contract.functions.rejectMilestone(index);
-    await tx.wait();
-    console.log("approve:",tx)
-    // You can perform additional actions after rejection if needed
-  } catch (error) {
-    console.error(`Error rejecting milestone at index ${index}:`, error);
-  }
-};
-
  
+
+
+
+
   async function updateMilestonesData() {
     try {
       const numberOfMilestones = await getNumberOfMilestones();
@@ -115,10 +97,69 @@ const rejectMilestone = async (index) => {
     address: contractAddress,
      abi: contractABI,
      functionName: 'hasRole',
-   args:[editor,address],
+   args:[editor2,address],
    watch: true,
    })
+ console.log("has:",hasRoleData)
+
+
+
+//  const index = selectedMilestoneIndex;
  
+//     const { config: rejectMilestoneConfig } = usePrepareContractWrite({
+//       address: contractAddress,
+//       abi: contractABI,
+//       functionName: 'rejectMilestone',
+//       args: [index], // Use the selected index as an argument
+//     });
+
+//     const { data, isLoading, write } = useContractWrite(rejectMilestoneConfig);
+
+//     // Call the write function here to execute the rejection
+   
+
+    
+const rejectMilestone = useContractWrite({
+  address: contractAddress,
+        abi: contractABI,
+         functionName: 'rejectMilestone', // The name of the function in your ABI
+});
+
+const handleRejectMilestone = (index) => {
+  // Call the rejectMilestone function with the index as an argument
+  rejectMilestone.write({
+    args: [index],
+   
+  });
+};
+
+
+const approveMilestone = useContractWrite({
+  address: contractAddress,
+        abi: contractABI,
+         functionName: 'approveMilestone', // The name of the function in your ABI
+});
+
+const handleApproveMilestone = (index) => {
+  // Call the rejectMilestone function with the index as an argument
+  approveMilestone.write({
+    args: [index],
+   
+  });
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
   return (
     <DashBoard class="h-screen">
       {hasRoleData === true ? ( <section class="text-gray-600 font-inter  font-bold overflow-hidden">
@@ -147,14 +188,14 @@ const rejectMilestone = async (index) => {
   
                   {/* Add buttons for approving and rejecting milestones */}
                   <button
-                    onClick={() => approveMilestone(index)}
+                    onClick={() => handleApproveMilestone(index)}
                     class="m-2 inline-flex items-center ml-3 justify-center rounded-xl border bg-white px-5 py-3 font-medium text-teal-700 shadow hover:bg-blue-50"
                   >
                     Approve Milestone
                   </button>
 
                   <button
-                    onClick={() => rejectMilestone(index)}
+                    onClick={() => handleRejectMilestone(index)}
                     class="m-2 inline-flex items-center ml-3 justify-center rounded-xl border bg-white px-5 py-3 font-medium text-teal-700 shadow hover:bg-red-50"
                   >
                     Reject Milestone
