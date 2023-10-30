@@ -97,7 +97,7 @@ const milestonesFunctionName = "milestones";
     address: contractAddress,
      abi: contractABI,
      functionName: 'hasRole',
-   args:[editor2,address],
+   args:[editor,address],
    watch: true,
    })
  console.log("has:",hasRoleData)
