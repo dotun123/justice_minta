@@ -7,7 +7,7 @@ import DashBoard from './DashBoard';
 import { useContractRead,useAccount,useContractWrite, usePrepareContractWrite,useWaitForTransaction } from 'wagmi';
 import { contractABI,  contractAddress,editor,editor2 } from "../components/abi/utils/constant";
 import {ethers} from "ethers";
-
+import Loading from "@/components/global/Loading";
 
 const MyProjects = () => {
 
@@ -93,6 +93,19 @@ const milestonesFunctionName = "milestones";
     return () => clearInterval(intervalId);
   }, []);
 
+
+
+    // Filter out milestones with empty indices
+    const filteredMilestones = milestoneData1.filter((milestone) => {
+      // Check if any of the indices are empty
+      for (let i = 0; i < milestone.length; i++) {
+        if (milestone[i] === undefined || milestone[i] === null || milestone[i] === '') {
+          return false; // Exclude this milestone
+        }
+      }
+      return true; // Include this milestone
+    });
+
   const { data:hasRoleData } =  useContractRead({
     address: contractAddress,
      abi: contractABI,
@@ -104,33 +117,37 @@ const milestonesFunctionName = "milestones";
 
 
 
-//  const index = selectedMilestoneIndex;
- 
-//     const { config: rejectMilestoneConfig } = usePrepareContractWrite({
-//       address: contractAddress,
-//       abi: contractABI,
-//       functionName: 'rejectMilestone',
-//       args: [index], // Use the selected index as an argument
-//     });
 
-//     const { data, isLoading, write } = useContractWrite(rejectMilestoneConfig);
-
-//     // Call the write function here to execute the rejection
-   
-
-    
 const rejectMilestone = useContractWrite({
   address: contractAddress,
         abi: contractABI,
          functionName: 'rejectMilestone', // The name of the function in your ABI
 });
 
+const { isLoading:rejectLoading, isSuccess:rejectSuccess } = useWaitForTransaction({
+  confirmations:1,
+  hash: rejectMilestone.data?.hash,
+})
+
+console.log("hash:",rejectSuccess ,rejectLoading)
+
+
 const handleRejectMilestone = (index) => {
-  // Call the rejectMilestone function with the index as an argument
-  rejectMilestone.write({
-    args: [index],
-   
-  });
+  if (index >= 0 && index < filteredMilestones.length) {
+    const selectedMilestone = filteredMilestones[index];
+    const originalIndex = milestoneData1.findIndex(milestone =>
+      milestone[1] === selectedMilestone[1] &&
+      milestone[2] === selectedMilestone[2] &&
+      milestone[3] === selectedMilestone[3]
+    );
+
+    if (originalIndex >= 0) {
+      const originalIndexBeforeReverse = milestoneData1.length - 1 - originalIndex;
+      rejectMilestone.write({
+        args: [originalIndexBeforeReverse],
+      });
+    }
+  }
 };
 
 
@@ -140,18 +157,38 @@ const approveMilestone = useContractWrite({
          functionName: 'approveMilestone', // The name of the function in your ABI
 });
 
+
+const { isLoading:approveLoading, isSuccess:approveSuccess } = useWaitForTransaction({
+  confirmations:1,
+  hash:  approveMilestone.data?.hash,
+})
+
+console.log("hash2:",approveSuccess ,approveLoading)
+
+useEffect(() => {
+  if (approveSuccess || rejectSuccess) {
+    updateMilestonesData();
+  }
+}, [approveSuccess, rejectSuccess]);
+
+
 const handleApproveMilestone = (index) => {
-  // Call the rejectMilestone function with the index as an argument
-  approveMilestone.write({
-    args: [index],
-   
-  });
+  if (index >= 0 && index < filteredMilestones.length) {
+    const selectedMilestone = filteredMilestones[index];
+    const originalIndex = milestoneData1.findIndex(milestone =>
+      milestone[1] === selectedMilestone[1] &&
+      milestone[2] === selectedMilestone[2] &&
+      milestone[3] === selectedMilestone[3]
+    );
+
+    if (originalIndex >= 0) {
+      const originalIndexBeforeReverse = milestoneData1.length - 1 - originalIndex;
+      approveMilestone.write({
+        args: [originalIndexBeforeReverse],
+      });
+    }
+  }
 };
-
-
-
-
-
 
 
 
@@ -169,7 +206,7 @@ const handleApproveMilestone = (index) => {
           <div class="flex justify-center items-center">Loading milestones data...</div>
         ) : (
           <div class="-my-8 divide-y-2 divide-gray-100">
-          {milestoneData1.slice().map((milestone, index) => (
+          {filteredMilestones.slice().map((milestone, index) => (
              <div class="py-8 flex flex-wrap md:flex-nowrap" key={index}>
             <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
                 <span class="font-semibold title-font text-gray-950">Milestone {index + 1}</span>
@@ -190,6 +227,7 @@ const handleApproveMilestone = (index) => {
                   <button
                     onClick={() => handleApproveMilestone(index)}
                     class="m-2 inline-flex items-center ml-3 justify-center rounded-xl border bg-white px-5 py-3 font-medium text-teal-700 shadow hover:bg-blue-50"
+                    disabled={rejectMilestone.isLoading || rejectLoading ||approveMilestone.isLoading || approveLoading}
                   >
                     Approve Milestone
                   </button>
@@ -197,6 +235,7 @@ const handleApproveMilestone = (index) => {
                   <button
                     onClick={() => handleRejectMilestone(index)}
                     class="m-2 inline-flex items-center ml-3 justify-center rounded-xl border bg-white px-5 py-3 font-medium text-teal-700 shadow hover:bg-red-50"
+                    disabled={rejectMilestone.isLoading || rejectLoading ||approveMilestone.isLoading || approveLoading}
                   >
                     Reject Milestone
                   </button>

@@ -71,6 +71,16 @@ const UserMilestones = () => {
 console.log("id:",milestoneIds);
 console.log("idmilestones:",milestoneData);
 
+const filteredMilestones = milestoneData.filter((milestone) => {
+  // Check if any of the indices are empty
+  for (let i = 0; i < milestone.length; i++) {
+    if (milestone[i] === undefined || milestone[i] === null || milestone[i] === '') {
+      return false; // Exclude this milestone
+    }
+  }
+  return true; // Include this milestone
+});
+
   return (
     <DashBoard>
      <section class="text-gray-600 font-inter  font-bold overflow-hidden">
@@ -80,11 +90,11 @@ console.log("idmilestones:",milestoneData);
           <div className="text-center text-gray-500">No milestones found (Not connected)</div>
         ) :loading ? ( // Render a loading message when data is loading
           <div class="flex justify-center items-center">Loading milestones data...</div>
-        ): milestoneData.length === 0  ? (
+        ): filteredMilestones.length === 0  ? (
           <div className="text-center text-gray-500">No milestones found</div>
         ) : (
           <div class="-my-8 divide-y-2 divide-gray-100">
-          {milestoneData.slice().map((milestone, index) => (
+          {filteredMilestones.slice().map((milestone, index) => (
              <div class="py-8 flex flex-wrap md:flex-nowrap" key={index}>
             <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
                 <span class="font-semibold title-font text-gray-950">Milestone {index + 1}</span>
