@@ -1,1 +1,8 @@
 
+   <!-- <button
+                    onClick={() => handleRejectMilestone(index)}
+                    class="m-2 inline-flex items-center ml-3 justify-center rounded-xl border bg-white px-5 py-3 font-medium text-teal-700 shadow hover:bg-red-50"
+                    disabled={rejectMilestone.isLoading || rejectLoading ||approveMilestone.isLoading || approveLoading}
+                  >
+                    Reject Milestone
+                  </button>  -->

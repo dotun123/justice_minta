@@ -1,16 +1,8 @@
 import React, { useEffect, useState } from "react";
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
-import Link from 'next/link';
 import { Label } from 'flowbite-react';
 import { Textarea } from 'flowbite-react';
 import { TextInput } from 'flowbite-react';
-import { Flowbite } from 'flowbite-react';
-import { HiMail } from 'react-icons/hi';
-import { Select } from 'flowbite-react';
-import { Radio } from 'flowbite-react';
-import { FileInput } from 'flowbite-react';
-import { Button } from 'flowbite-react';
 import { ethers } from "ethers";
 import DashBoard from './DashBoard';
 
@@ -18,7 +10,7 @@ import { useContractWrite, usePrepareContractWrite,useWaitForTransaction } from 
 import { contractABI,contractAddress } from "../components/abi/utils/constant";
 import Loading from "@/components/global/Loading";
 
-import { useDebounce } from 'use-debounce';
+
 
 function weiValue(ethValue){
   if((ethValue != undefined) && (ethValue != "")){
@@ -58,6 +50,15 @@ const { isLoading:botLoading} = useWaitForTransaction({
   confirmations: 1,
    hash: allowanceData?.hash,
  })
+
+
+ useEffect(() => {
+  if (botLoading) {
+    // Clear the values when botLoading is true
+    setFundingAmount('0');
+    setMilestoneDescription('');
+  }
+}, [botLoading]);
   return (
     <>
     <DashBoard class="">
