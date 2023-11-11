@@ -206,61 +206,70 @@ const handleApproveMilestone = (index) => {
           <div class="flex justify-center items-center">Loading milestones data...</div>
         ) : (
           <div class="-my-8 divide-y-2 divide-gray-100">
-          {filteredMilestones.slice().map((milestone, index) => (
-             <div class="py-8 flex flex-wrap md:flex-nowrap" key={index}>
-            <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
-                <span class="font-semibold title-font text-gray-950">Milestone {index + 1}</span>
-                 <span class="mt-1 text-gray-650 text-sm">{formatUnixTimestamp(milestone?milestone[3]:0)} {/* Display the date from the data */}</span>
-                </div>
-            <div class="md:flex-grow">
-               <h2 class="text-2xl font-medium text-gray-900 title-font mb-2">{milestone?milestone[1]:0} {/* Display the description from the data */} ( {milestone?(milestone[2].toString()):0} USD)</h2>
-                <div class="flex">
-                  <div class={`mt-35 w-22 rounded-md ${ milestone && milestone[6] ? 'bg-teal-100' : 'bg-red-100'} px-2 py-1 text-sm font-medium text-teal-700 mr-2`}>
-                  {milestone && milestone[6]? 'Funded' : 'Not Funded'}
-                  </div>
-                 <div class={`mt-35 w-22 rounded-md ${ milestone && milestone[7] ? 'bg-teal-100' : 'bg-red-100'} px-2 py-1 text-sm font-medium text-teal-700`}>
-                 {milestone && milestone[7]? 'Approved' : 'In Progress'}
-                 </div>
-                 </div>
-  
-                  {/* Add buttons for approving and rejecting milestones */}
-                 
-                  {(selectedMilestoneIndex === index && (approveMilestone.isLoading || approveLoading)) ? (
-                    <div class="m-2 inline-flex items-center ml-3 justify-center ">
-                        <Loading />
-                        </div>
-                      ) : (
-          <button
-            onClick={() => {
-              setSelectedMilestoneIndex(index); // Set the selected milestone index
-              handleApproveMilestone(index);
-            }}
-            class="m-2 inline-flex items-center ml-3 justify-center rounded-xl border bg-white px-5 py-3 font-medium text-teal-700 shadow hover-bg-red-50"
-            disabled={rejectMilestone.isLoading || rejectLoading || approveMilestone.isLoading || approveLoading}
-          >
-            Approve Milestone
-          </button>
-        )}
+         
 
-                  {(selectedMilestoneIndex === index && (rejectMilestone.isLoading || rejectLoading)) ? (
-                    <div class="m-2 inline-flex items-center ml-3 justify-center ">
-                        <Loading />
-                        </div>
-                      ) : (
-          <button
-            onClick={() => {
-              setSelectedMilestoneIndex(index); // Set the selected milestone index
-              handleRejectMilestone(index);
-            }}
-            class="m-2 inline-flex items-center ml-3 justify-center rounded-xl border bg-white px-5 py-3 font-medium text-teal-700 shadow hover-bg-red-50"
-            disabled={rejectMilestone.isLoading || rejectLoading || approveMilestone.isLoading || approveLoading}
-          >
-            Reject Milestone
-          </button>
-        )}
-             </div>
-           </div>
-          ))}
+          {filteredMilestones.slice().map((milestone, index) => (
+  <div class="py-8 flex flex-wrap md:flex-nowrap" key={index}>
+    <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
+      <span class="font-semibold title-font text-gray-950">Milestone {index + 1}</span>
+      <span class="mt-1 text-gray-650 text-sm">{formatUnixTimestamp(milestone ? milestone[3] : 0)}</span>
+    </div>
+    <div class="md:flex-grow">
+      <h2 class="text-2xl font-medium text-gray-900 title-font mb-2">
+        {milestone ? milestone[1] : 0} ( {milestone ? milestone[2].toString() : 0} USD)
+      </h2>
+      <div class="flex">
+        <div class={`mt-35 w-22 rounded-md ${milestone && milestone[6] ? 'bg-teal-100' : 'bg-red-100'} px-2 py-1 text-sm font-medium text-teal-700 mr-2`}>
+          {milestone && milestone[6] ? 'Funded' : 'Not Funded'}
+        </div>
+        <div class={`mt-35 w-22 rounded-md ${milestone && milestone[7] ? 'bg-teal-100' : 'bg-red-100'} px-2 py-1 text-sm font-medium text-teal-700`}>
+          {milestone && milestone[7] ? 'Approved' : 'In Progress'}
+        </div>
+      </div>
+
+      {/* Conditionally render the buttons based on milestone[7] */}
+      {milestone && !milestone[7] && (
+        <div class="flex">
+          {/* Approve Button */}
+          {(selectedMilestoneIndex === index && (approveMilestone.isLoading || approveLoading)) ? (
+            <div class="m-2 inline-flex items-center ml-3 justify-center ">
+              <Loading />
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                setSelectedMilestoneIndex(index);
+                handleApproveMilestone(index);
+              }}
+              class="m-2 inline-flex items-center ml-3 justify-center rounded-xl border bg-white px-5 py-3 font-medium text-teal-700 shadow hover-bg-red-50"
+              disabled={rejectMilestone.isLoading || rejectLoading || approveMilestone.isLoading || approveLoading}
+            >
+              Approve Milestone
+            </button>
+          )}
+
+          {/* Reject Button */}
+          {(selectedMilestoneIndex === index && (rejectMilestone.isLoading || rejectLoading)) ? (
+            <div class="m-2 inline-flex items-center ml-3 justify-center ">
+              <Loading />
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                setSelectedMilestoneIndex(index);
+                handleRejectMilestone(index);
+              }}
+              class="m-2 inline-flex items-center ml-3 justify-center rounded-xl border bg-white px-5 py-3 font-medium text-teal-700 shadow hover-bg-red-50"
+              disabled={rejectMilestone.isLoading || rejectLoading || approveMilestone.isLoading || approveLoading}
+            >
+              Reject Milestone
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+))}
         </div>)}
        </div>
     </section>):null}
@@ -269,3 +278,4 @@ const handleApproveMilestone = (index) => {
 };
 
 export default dynamic(() => Promise.resolve(MyProjects), { ssr: false });
+
