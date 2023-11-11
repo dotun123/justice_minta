@@ -63,22 +63,41 @@ const milestonesFunctionName = "milestones";
 
 
 
+  // async function updateMilestonesData() {
+  //   try {
+  //     const numberOfMilestones = await getNumberOfMilestones();
+  //     const milestones = [];
+
+  //     for (let i = 0; i < numberOfMilestones; i++) {
+  //       const milestoneData = await getMilestoneData(i);
+  //       milestones.push(milestoneData);
+  //     }
+
+  //     setMilestoneData(milestones.reverse());
+  //     setLoading(false);
+  //   } catch (error) {
+  //     console.error("Error updating milestones data:", error);
+  //   }
+  // }
+
+
   async function updateMilestonesData() {
     try {
       const numberOfMilestones = await getNumberOfMilestones();
-      const milestones = [];
-
+      const milestonePromises = [];
+  
       for (let i = 0; i < numberOfMilestones; i++) {
-        const milestoneData = await getMilestoneData(i);
-        milestones.push(milestoneData);
+        milestonePromises.push(getMilestoneData(i));
       }
-
+  
+      const milestones = await Promise.all(milestonePromises);
       setMilestoneData(milestones.reverse());
       setLoading(false);
     } catch (error) {
       console.error("Error updating milestones data:", error);
     }
   }
+  
 
   useEffect(() => {
     updateMilestonesData();
