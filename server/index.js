@@ -12,11 +12,20 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// const db = mysql.createConnection({
+//   host: 'localhost',
+//   user: 'root',
+//   password: 'Eng@ineer123',
+//   database: 'milala',
+// });
+
+
 const db = mysql.createConnection({
-  host: 'localhost',
+  host: '127.0.0.1',
   user: 'root',
   password: 'Eng@ineer123',
   database: 'milala',
+  port: 3306,
 });
 
 db.connect((err) => {
